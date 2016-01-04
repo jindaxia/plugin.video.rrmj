@@ -67,6 +67,7 @@ def index():
             'label': album["name"],
             'path': url,
             'icon': album["coverUrl"],
+            'thumbnail': one["cover"],
             'is_playable': False
         }
         yield item
@@ -84,6 +85,7 @@ def category():
 
 
 @plugin.route('/search/cat_<cat>/page_<page>', name="cat_list", options={"page": "1"})
+@plugin.route('/search/title_<title>/page_<page>', name="search_title", options={"page": "1"})
 @plugin.route('/search/s_<sort>/o_<order>/m_<mark>/page_<page>', name="mark_list", options={"page": "1"})
 @plugin.route('/search/page_<page>', options={"page": "1"})
 def search(page, **kwargs):
@@ -93,6 +95,7 @@ def search(page, **kwargs):
             'label': one.get("title"),
             'path': plugin.url_for("detail", seasonId=one.get("id")),
             'icon': one["cover"],
+            'thumbnail': one["cover"],
             'is_playable': False
         }
         yield item
