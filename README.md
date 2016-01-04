@@ -1,4 +1,4 @@
 # plugin.video.rrmj
- [] auto play next episode
- [] download and store
- [] search
+- [ ] auto play next episode
+- [ ] download and store
+- [ ] search
