@@ -1,0 +1,6 @@
+
+v0.0.2
+- added: category 增加分类
+
+v0.0.1
+- initial release
