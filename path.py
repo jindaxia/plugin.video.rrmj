@@ -5,6 +5,7 @@ import os
 import sys
 from xbmcswift2 import xbmc
 
+CATE = ["喜剧", "科幻", "恐怖", "剧情", "魔幻", "罪案", "冒险", "动作", "悬疑"]
 
 ADDON = xbmcaddon.Addon()
 ADDON_ID = ADDON.getAddonInfo('id')
@@ -42,6 +43,11 @@ def remap_url(req_url, page=1):
 
 @plugin.route('/')
 def index():
+    yield {
+        'label': "分类",
+        'path': plugin.url_for("category"),
+        'is_playable': False
+    }
     data = Meiju.index_info()
     if data["code"] != "0000":
         return
@@ -61,6 +67,17 @@ def index():
             'label': album["name"],
             'path': url,
             'icon': album["coverUrl"],
+            'is_playable': False
+        }
+        yield item
+
+
+@plugin.route('/cat/')
+def category():
+    for ca in CATE:
+        item = {
+            'label': ca,
+            'path': plugin.url_for("cat_list", cat=ca),
             'is_playable': False
         }
         yield item

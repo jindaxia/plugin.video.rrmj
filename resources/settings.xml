@@ -1,15 +1,7 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <settings>
     <category label="normal">
-      <setting id="page_rows" type="slider" label="每页数量" default="20" range="12,4,200" option="int"/>
-      <setting id="warning" type="text" visible= "false" label="30139" default=""/>
-    </category>
-    <category label="site settings">
-      <setting id="pptv" type="bool" label="PPTV" default="false"/>
-      <setting id="sohu" type="bool" label="SOHU" default="true"/>
-      <setting id="youku" type="bool" label="YOUKU" default="true"/>
-      <setting id="cntv" type="bool" label="CNTV" default="false"/>
-      <setting id="xunlei" type="bool" label="XUNLEI" default="false"/>
-      <setting id="s" type="bool" label="SOHU" default="true"/>
+      <setting id="page_rows" type="slider" label="30000" default="20" range="12,4,200" option="int"/>
+      <setting id="quality" type="labelenum"  label="30001" values="yuanhua|super|high|low|max" lwvalues="30002|30003|30004|30005|30006" default="max"/>
     </category>
 </settings>
