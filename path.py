@@ -67,7 +67,7 @@ def index():
             'label': album["name"],
             'path': url,
             'icon': album["coverUrl"],
-            'thumbnail': one["cover"],
+            'thumbnail': album["coverUrl"],
             'is_playable': False
         }
         yield item
