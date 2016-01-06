@@ -1,9 +1,14 @@
 # -*- coding: utf8 -*-
 
-from xbmcswift2 import Plugin, CLI_MODE, xbmcaddon, ListItem
+from xbmcswift2 import Plugin, CLI_MODE, xbmcaddon, ListItem, xbmc, xbmcgui
 import os
 import sys
-from xbmcswift2 import xbmc
+
+try:
+    import ChineseKeyboard as Keyboard
+except Exception, e:
+    print e
+    from xbmc import Keyboard
 
 CATE = ["喜剧", "科幻", "恐怖", "剧情", "魔幻", "罪案", "冒险", "动作", "悬疑"]
 
@@ -14,9 +19,9 @@ ADDON_NAME = ADDON.getAddonInfo('name')
 ADDON_PATH = ADDON.getAddonInfo('path').decode("utf-8")
 ADDON_VERSION = ADDON.getAddonInfo('version')
 ADDON_DATA_PATH = xbmc.translatePath("special://profile/addon_data/%s" % ADDON_ID).decode("utf-8")
-print os.path.join(ADDON_PATH, 'resources', 'lib')
 sys.path.append(os.path.join(ADDON_PATH, 'resources', 'lib'))
 from rrmj import *
+from common import *
 
 plugin = Plugin()
 Meiju = RenRenMeiJu()
@@ -46,6 +51,11 @@ def index():
     yield {
         'label': "分类",
         'path': plugin.url_for("category"),
+        'is_playable': False
+    }
+    yield {
+        'label': "搜索",
+        'path': plugin.url_for("hotword"),
         'is_playable': False
     }
     data = Meiju.index_info()
@@ -82,6 +92,35 @@ def category():
             'is_playable': False
         }
         yield item
+
+
+@plugin.route('/hotword/')
+def hotword():
+    yield {
+            'label': colorize("输入关键字搜索", "yellow"),
+            'path': plugin.url_for("input_keyword"),
+            'is_playable': False
+        }
+    hotwords = Meiju.hot_word()
+    for word in hotwords["data"]["wordList"]:
+        word = word.encode("utf8")
+        item = {
+            'label': colorize(word, "green"),
+            'path': plugin.url_for("search_title", title=word),
+            'is_playable': False
+        }
+        yield item
+
+
+@plugin.route("/input/")
+def input_keyword():
+    keyboard = Keyboard.Keyboard('', '请输入搜索内容')
+    xbmc.sleep(1500)
+    keyboard.doModal()
+    if (keyboard.isConfirmed()):
+        keyword = keyboard.getText()
+        url = plugin.url_for("search_title", title=keyword)
+        plugin.redirect(url)
 
 
 @plugin.route('/search/cat_<cat>/page_<page>', name="cat_list", options={"page": "1"})
