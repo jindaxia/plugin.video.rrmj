@@ -1,3 +1,6 @@
+v0.0.4
+- add search 增加搜索
+
 v0.0.3
 - fix error 修复一个无法启动的错误
 - add thumbnail 增加 缩略图
