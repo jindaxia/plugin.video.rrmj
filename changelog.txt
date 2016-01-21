@@ -1,3 +1,6 @@
+v0.0.5
+- fix search exception 修复一个搜索的错误
+
 v0.0.4
 - add search 增加搜索
 
