@@ -5,7 +5,7 @@ import os
 import sys
 
 try:
-    import ChineseKeyboard as Keyboard
+    from ChineseKeyboard import Keyboard
 except Exception, e:
     print e
     from xbmc import Keyboard
@@ -114,7 +114,7 @@ def hotword():
 
 @plugin.route("/input/")
 def input_keyword():
-    keyboard = Keyboard.Keyboard('', '请输入搜索内容')
+    keyboard = Keyboard('', '请输入搜索内容')
     xbmc.sleep(1500)
     keyboard.doModal()
     if (keyboard.isConfirmed()):
