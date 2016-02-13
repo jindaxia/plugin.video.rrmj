@@ -2,54 +2,107 @@
 # -*- coding: utf-8 -*-
 import urllib
 import json
+import time
 from common import *
+import xbmcvfs
 SERVER = "http://api2.rrmj.tv"
 
 FAKE_HEADERS = {
     "a": "cf2ecd4d-dea3-40ca-814f-3f0462623b1c",
-    "b": "http://api.rrmj.tv/v2/video/indexInfo",
+    "b": "",
     "c": "5a1fb134-9384-4fc8-a5ae-6e711e24afc1",
-    "d": "1454936672005",
+    "d": "",
     "e": "d4dd075d894dd2b8c81f96062dbe7dcbf7d467fd"
 }
+
+
+def getGUID():
+    if xbmcvfs.exists("special://temp/rrmj.key"):
+        f = xbmcvfs.File("special://temp/rrmj.key")
+        result = f.read()
+        f.close()
+        if result != "":
+            return result
+    import uuid
+    key = str(uuid.uuid1())
+    f = xbmcvfs.File("special://temp/rrmj.key", 'w')
+    result = f.write(key)
+    f.close()
+    return key
+
+
+def createKey():
+    constantStr = "yyets"
+    c = str(int(time.time()))+"416"
+    return caesarEncryption(constantStr + c, 3)
+
+
+def caesarEncryption(source, offset):
+    dic = "abcdefghijklmnopqrstuvwxyz0123456789"
+    length = len(dic)
+    result = ""
+    for ch in source:
+        i = dic.find(ch)
+        if i+offset >= length:
+            result += dic[(i+offset) % length]
+        else:
+            result += dic[i+offset]
+    return result
 
 
 class RenRenMeiJu(object):
     """docstring for RenRenMeiJu"""
     def __init__(self):
+        self._header = FAKE_HEADERS
+        key_id = getGUID()
+        self._header.update(a=key_id)
+        self.get_ticket()
         super(RenRenMeiJu, self).__init__()
+
+    def get_json(self, url, data=None):
+        headers = self.header
+        headers.update(b=url)
+        s = GetHttpData(url, data=data, headers=headers)
+        return json.loads(s)
+
+    def get_ticket(self):
+        API = '/auth/ticket'
+        auth_data = {"a": FAKE_HEADERS["a"],
+                     "b": createKey()}
+        data = self.get_json(SERVER + API, data=urllib.urlencode(auth_data))
+        return data["data"]["ticket"] != ""
+
+    @property
+    def header(self):
+        self._header.update(d=str(int(time.time()))+"416")
+        return self._header
 
     def search(self, page=1, rows=12, **kwargs):
         API = '/v2/video/search'
         kwargs["page"] = page
         kwargs["rows"] = rows
-        data = GetHttpData(SERVER + API, data=urllib.urlencode(kwargs), headers=FAKE_HEADERS)
-        return json.loads(data)
+        return self.get_json(SERVER + API, data=urllib.urlencode(kwargs))
 
     def get_album(self, albumId=2):
         API = '/v2/video/album'
-        data = GetHttpData(SERVER + API, data=urllib.urlencode(dict(albumId=albumId)), headers=FAKE_HEADERS)
-        return json.loads(data)
+        return self.get_json(SERVER + API, data=urllib.urlencode(dict(albumId=albumId)))
 
     def index_info(self):
         API = '/v2/video/indexInfo'
-        data = GetHttpData(SERVER + API, headers=FAKE_HEADERS)
-        return json.loads(data)
+        return self.get_json(SERVER + API)
 
     def video_detail(self, seasonId, userId=0, **kwargs):
         API = '/v2/video/detail'
         kwargs["seasonId"] = seasonId
         kwargs["userId"] = userId
-        data = GetHttpData(SERVER + API, data=urllib.urlencode(kwargs), headers=FAKE_HEADERS)
-        return json.loads(data)
+        return self.get_json(SERVER + API, data=urllib.urlencode(kwargs))
 
     def hot_word(self):
         API = '/v2/video/hotWord'
-        data = GetHttpData(SERVER + API, headers=FAKE_HEADERS)
-        return json.loads(data)
+        return self.get_json(SERVER + API)
 
 
-class RRMJResolver(object):
+class RRMJResolver(RenRenMeiJu):
 
     def get_m3u8(self, url, quality=""):
         print quality
@@ -57,8 +110,7 @@ class RRMJResolver(object):
         params = dict({"htmlUrl": url,
                        "quality": quality
                        })
-        data = json.loads(GetHttpData(SERVER + API, data=urllib.urlencode(params), headers=FAKE_HEADERS))
-        print data
+        data = self.get_json(SERVER + API, data=urllib.urlencode(params))
         if data["code"] != "0000":
             return None, None
         else:
