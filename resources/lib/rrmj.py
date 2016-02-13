@@ -5,7 +5,11 @@ import json
 import time
 from common import *
 import xbmcvfs
+import xbmcgui
+import xbmcaddon
 SERVER = "http://api2.rrmj.tv"
+__ADDON__ = xbmcaddon.Addon()
+
 
 FAKE_HEADERS = {
     "a": "cf2ecd4d-dea3-40ca-814f-3f0462623b1c",
@@ -57,20 +61,29 @@ class RenRenMeiJu(object):
         key_id = getGUID()
         self._header.update(a=key_id)
         self.get_ticket()
-        super(RenRenMeiJu, self).__init__()
 
-    def get_json(self, url, data=None):
+    def get_json(self, url, data=None, pretty=False):
         headers = self.header
         headers.update(b=url)
-        s = GetHttpData(url, data=data, headers=headers)
-        return json.loads(s)
+        s = json.loads(GetHttpData(url, data=data, headers=headers))
+        if pretty:
+            print headers
+            print json.dumps(s, sort_keys=True,
+                             indent=4, separators=(',', ': '))
+        return s
 
     def get_ticket(self):
+        expired_time = __ADDON__.getSetting("expired_time")
+        if expired_time != "":
+            now = int(time.time())*1000
+            if now < int(expired_time):
+                return
         API = '/auth/ticket'
         auth_data = {"a": FAKE_HEADERS["a"],
                      "b": createKey()}
         data = self.get_json(SERVER + API, data=urllib.urlencode(auth_data))
-        return data["data"]["ticket"] != ""
+        if data["data"]["ticket"] != "":
+            __ADDON__.setSetting("expired_time", str(data["data"]["expiredTime"]))
 
     @property
     def header(self):
@@ -89,7 +102,7 @@ class RenRenMeiJu(object):
 
     def index_info(self):
         API = '/v2/video/indexInfo'
-        return self.get_json(SERVER + API)
+        return self.get_json(SERVER + API, pretty=True)
 
     def video_detail(self, seasonId, userId=0, **kwargs):
         API = '/v2/video/detail'
@@ -104,13 +117,9 @@ class RenRenMeiJu(object):
 
 class RRMJResolver(RenRenMeiJu):
 
-    def get_m3u8(self, url, quality=""):
-        print quality
-        API = '/v2/video/findM3u8'
-        params = dict({"htmlUrl": url,
-                       "quality": quality
-                       })
-        data = self.get_json(SERVER + API, data=urllib.urlencode(params))
+    def get_by_sid(self, **kwargs):
+        API = "/v2/video/findM3u8ByEpisodeSid"
+        data = self.get_json(SERVER + API, data=urllib.urlencode(kwargs), pretty=True)
         if data["code"] != "0000":
             return None, None
         else:
@@ -125,12 +134,6 @@ class RRMJResolver(RenRenMeiJu):
             else:
                 return m3u8["url"], current_quality
 
-    def get_play(self, url, quality=""):
-        return self.get_m3u8(url, quality)
 
-if __name__ == "__main__":
-    rrmj = RenRenMeiJu()
-    # print rrmj.get_album()
-    # print rrmj.search("喜剧")
-    print rrmj.index_info()
-    # print rrmj.video_detail("933")
+    def get_play(self, seasonId, episodeSid, quality=""):
+        return self.get_by_sid(seasonId=seasonId, episodeSid=episodeSid, quality=quality)
