@@ -1,3 +1,6 @@
+v0.1.2
+- auto play next episode works
+
 v0.1.1
 - better history
 
