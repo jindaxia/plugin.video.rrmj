@@ -164,9 +164,18 @@ def video_detail(seasonId):
     detail = Meiju.video_detail(seasonId)
     title = detail["data"]["seasonDetail"]["title"]
     SEASON_CACHE[seasonId] = detail["data"]
+    history = HISTORY.get("list", None)
+    playing_episode = "0"
+    if history is not None:
+        for l in history:
+            if l["seasonId"] == seasonId:
+                playing_episode = l["index"]
     for episode in detail["data"]["seasonDetail"]["episode_brief"]:
+        label = title + episode["episode"]
+        if episode["episode"] == playing_episode:
+            label = "[B]" + colorize(label, "green") + "[/B]"
         item = {
-            'label': title + episode["episode"],
+            'label': label,
             'path': plugin.url_for("play_season", seasonId=seasonId, index=episode["episode"], Esid=episode["sid"]),
             'is_playable': True
         }
@@ -182,8 +191,8 @@ def play(seasonId="", index="", Esid=""):
     rs = RRMJResolver()
     play_url, _ = rs.get_play(seasonId, eipisodeSid, plugin.get_setting("quality"))
     if play_url is not None:
-        plugin.set_resolved_url(play_url)
         add_history(seasonId, index, Esid, title)
+        plugin.set_resolved_url(play_url)
 
 
 def add_history(seasonId, index, Esid, title):
@@ -207,7 +216,7 @@ def list_history():
             index = l["index"]
             sid = l["sid"]
             yield {
-                'label': l["season_name"] + l["index"],
-                'path': plugin.url_for("play_season", seasonId=seasonId, index=index, Esid=sid),
-                'is_playable': True
+                'label': u"[COLOR green]{title}[/COLOR]  观看到第[COLOR yellow]{index}[/COLOR]集".format(title=l["season_name"], index=l["index"]),
+                'path': plugin.url_for("detail", seasonId=seasonId),
+                'is_playable': False
             }
