@@ -1,3 +1,6 @@
+v0.1.1
+- better history
+
 v0.1.0
 - fix new api
 - fix history
