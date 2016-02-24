@@ -9,7 +9,7 @@
     <import addon="script.module.keyboard.chinese" version="2.0.4" optional="true"/>
   </requires>
   <extension point="xbmc.python.pluginsource" library="default.py">
-        <provides>video</provides>
+        <provides>video audio</provides>
   </extension>
   <extension point="xbmc.addon.metadata">
     <summary lang="zh-CN">由人人影视转型后专门为美剧迷们打造的高质量讨论交流社区</summary>
