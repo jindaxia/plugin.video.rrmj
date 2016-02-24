@@ -187,9 +187,9 @@ def video_detail(seasonId):
 def play(seasonId="", index="", Esid=""):
     season_data = SEASON_CACHE.get(seasonId)
     title = season_data["seasonDetail"]["title"]
-    eipisodeSid = Esid
+    episode_sid = Esid
     rs = RRMJResolver()
-    play_url, _ = rs.get_play(seasonId, eipisodeSid, plugin.get_setting("quality"))
+    play_url, _ = rs.get_play(seasonId, episode_sid, plugin.get_setting("quality"))
     if play_url is not None:
         add_history(seasonId, index, Esid, title)
         plugin.set_resolved_url(play_url)
