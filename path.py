@@ -48,8 +48,14 @@ def remap_url(req_url, page=1):
     return plugin.url_for(endpoint, **params)
 
 
+def set_auto_play():
+    auto_play_setting = plugin.get_setting("auto_next")
+    print setSettingByRPC("videoplayer.autoplaynextitem", auto_play_setting)
+
+
 @plugin.route('/')
 def index():
+    set_auto_play()
     yield {
         'label': "分类",
         'path': plugin.url_for("category"),
