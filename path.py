@@ -31,10 +31,11 @@ HISTORY = plugin.get_storage('history')
 
 
 def parse_qs(qs):
+    "Query String to Dictionary"
     return dict([s1.split('=') for s1 in urllib.unquote(qs).split('&')])
 
 
-def remap_url(req_url, page=1):
+def remap_url(req_url):
     array = req_url.split("?")
     params = parse_qs(array[1])
     if array[0] == "/video/search":
@@ -53,6 +54,7 @@ def set_auto_play():
     print setSettingByRPC("videoplayer.autoplaynextitem", auto_play_setting)
 
 
+# main entrance
 @plugin.route('/')
 def index():
     set_auto_play()
@@ -96,6 +98,7 @@ def index():
         yield item
 
 
+# list catagories
 @plugin.route('/cat/')
 def category():
     for ca in CATE:
@@ -107,6 +110,7 @@ def category():
         yield item
 
 
+# search entrance
 @plugin.route('/hotword/')
 def hotword():
     yield {
@@ -125,6 +129,7 @@ def hotword():
         yield item
 
 
+# get search result by input keyword
 @plugin.route("/input/")
 def input_keyword():
     keyboard = Keyboard('', '请输入搜索内容')
@@ -136,10 +141,10 @@ def input_keyword():
         plugin.redirect(url)
 
 
-@plugin.route('/search/cat_<cat>/page_<page>', name="cat_list", options={"page": "1"})
-@plugin.route('/search/title_<title>/page_<page>', name="search_title", options={"page": "1"})
-@plugin.route('/search/s_<sort>/o_<order>/m_<mark>/page_<page>', name="mark_list", options={"page": "1"})
-@plugin.route('/search/page_<page>', options={"page": "1"})
+@plugin.route('/search/cat_<cat>/page_<page>', name="cat_list", options={"page": "1"})  # get search result by catagory
+@plugin.route('/search/title_<title>/page_<page>', name="search_title", options={"page": "1"})  # get search result by search title
+@plugin.route('/search/s_<sort>/o_<order>/m_<mark>/page_<page>', name="mark_list", options={"page": "1"})  # get search result by catagory and page
+@plugin.route('/search/page_<page>', options={"page": "1"})  # get search result by nothing??
 def search(page, **kwargs):
     c_list = Meiju.search(page, PAGE_ROWS, **kwargs)
     for one in c_list["data"]["results"]:
@@ -165,11 +170,12 @@ def get_album(albumId):
         yield item
 
 
+# get season episodes by season id
 @plugin.route('/detail/<seasonId>', name="detail")
 def video_detail(seasonId):
     detail = Meiju.video_detail(seasonId)
     title = detail["data"]["seasonDetail"]["title"]
-    SEASON_CACHE[seasonId] = detail["data"]
+    SEASON_CACHE[seasonId] = detail["data"]  # store season detail
     history = HISTORY.get("list", None)
     playing_episode = "0"
     if history is not None:
