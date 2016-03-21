@@ -148,25 +148,30 @@ def input_keyword():
 def search(page, **kwargs):
     c_list = Meiju.search(page, PAGE_ROWS, **kwargs)
     for one in c_list["data"]["results"]:
-        item = {
+        item = ListItem(**{
             'label': one.get("title"),
             'path': plugin.url_for("detail", seasonId=one.get("id")),
             'icon': one["cover"],
             'thumbnail': one["cover"],
-            'is_playable': False
-        }
+        })
+        item.set_info("video", {"plot": one.get("brief", ""),
+                                "rating ": float(one["score"]),
+                                "genre": one["cat"],
+                                "season": one["seasonNo"]})
+        item.set_is_playable(False)
         yield item
+    plugin.set_content('TVShows')
 
 
 @plugin.route('/album/<albumId>/', name="album")
 def get_album(albumId):
     c_list = Meiju.get_album(albumId)
     for one in c_list["data"]["results"]:
-        item = {
+        item = ListItem({
             'label': one.get("title"),
             'path': plugin.url_for("detail", seasonId=one.get("id")),
             'is_playable': False
-        }
+        })
         yield item
 
 
@@ -186,11 +191,15 @@ def video_detail(seasonId):
         label = title + episode["episode"]
         if episode["episode"] == playing_episode:
             label = "[B]" + colorize(label, "green") + "[/B]"
-        item = {
+        item = ListItem(**{
             'label': label,
             'path': plugin.url_for("play_season", seasonId=seasonId, index=episode["episode"], Esid=episode["sid"]),
-            'is_playable': True
-        }
+        })
+        item.set_info("video", {"plot": episode["text"],
+                                "TVShowTitle": episode["text"],
+                                "episode": int(episode["episode"]),
+                                "season": 0})
+        item.set_is_playable(True)
         yield item
     plugin.set_content('episodes')
 
