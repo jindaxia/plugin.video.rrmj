@@ -1,3 +1,6 @@
+v0.1.6
+- fix album error 修复专辑进入错误
+
 v0.1.5
 - fix api error
 
