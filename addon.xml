@@ -14,5 +14,8 @@
     <summary lang="zh-CN">由人人影视转型后专门为美剧迷们打造的高质量讨论交流社区</summary>
     <description lang="en"></description>
     <platform>all</platform>
+    <website><![CDATA[https://github.com/jindaxia/plugin.video.rrmj]]></website>
+    <forum></forum>
+    <source><![CDATA[https://github.com/jindaxia/plugin.video.rrmj]]></source>
   </extension>
 </addon>
