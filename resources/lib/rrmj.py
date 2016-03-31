@@ -4,6 +4,7 @@ import urllib
 import json
 import time
 from common import *
+import xbmc
 import xbmcvfs
 import xbmcgui
 import xbmcaddon
@@ -69,9 +70,8 @@ class RenRenMeiJu(object):
         headers.update(b=url)
         s = json.loads(GetHttpData(url, data=data, headers=headers))
         if pretty:
-            print headers
-            print json.dumps(s, sort_keys=True,
-                             indent=4, separators=(',', ': '))
+            xbmc.log(json.dumps(s, sort_keys=True,
+                     indent=4, separators=(',', ': ')))
         return s
 
     def get_ticket(self):
