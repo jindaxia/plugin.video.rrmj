@@ -223,7 +223,7 @@ def play(seasonId="", index="", Esid=""):
     play_url, _ = rs.get_play(seasonId, episode_sid, plugin.get_setting("quality"))
     if play_url is not None:
         add_history(seasonId, index, Esid, title)
-        li = ListItem(title, path=play_url)
+        li = ListItem(title+index, path=play_url)
         plugin.set_resolved_url(li)
 
 
