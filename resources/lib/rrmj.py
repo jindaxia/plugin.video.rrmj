@@ -120,7 +120,7 @@ class RenRenMeiJu(object):
 class RRMJResolver(RenRenMeiJu):
 
     def get_by_sid(self, **kwargs):
-        API = "/v2/video/findM3u8ByEpisodeSid"
+        API = "/video/findM3u8ByEpisodeSid"
         data = self.get_json(SERVER + API, data=urllib.urlencode(kwargs), pretty=False)
         if data["code"] != "0000":
             return None, None
