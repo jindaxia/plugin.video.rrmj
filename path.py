@@ -186,7 +186,7 @@ def get_album(albumId):
 @plugin.route('/detail/<seasonId>', name="detail")
 def video_detail(seasonId):
     detail = Meiju.video_detail(seasonId)
-    title = detail["data"]["seasonDetail"]["title"]
+    title = detail["data"]["season"]["title"]
     SEASON_CACHE[seasonId] = detail["data"]  # store season detail
     history = HISTORY.get("list", None)
     playing_episode = "0"
@@ -194,16 +194,15 @@ def video_detail(seasonId):
         for l in history:
             if l["seasonId"] == seasonId:
                 playing_episode = l["index"]
-    for episode in detail["data"]["seasonDetail"]["episode_brief"]:
-        label = title + episode["episode"]
+    for episode in detail["data"]["season"]["playUrlList"]:
+        label = title + str(episode["episode"])
         if episode["episode"] == playing_episode:
             label = "[B]" + colorize(label, "green") + "[/B]"
         item = ListItem(**{
             'label': label,
-            'path': plugin.url_for("play_season", seasonId=seasonId, index=episode["episode"], Esid=episode["sid"]),
+            'path': plugin.url_for("play_season", seasonId=seasonId, index=episode["episode"], Esid=episode["episodeSid"]),
         })
-        item.set_info("video", {"plot": episode["text"],
-                                "TVShowTitle": episode["text"],
+        item.set_info("video", {"TVShowTitle": detail["data"]["season"]["seriesName"],
                                 "episode": int(episode["episode"]),
                                 "season": 0})
         item.set_is_playable(True)
@@ -214,7 +213,7 @@ def video_detail(seasonId):
 @plugin.route('/play/<seasonId>/<index>/<Esid>', name="play_season")
 def play(seasonId="", index="", Esid=""):
     season_data = SEASON_CACHE.get(seasonId)
-    title = season_data["seasonDetail"]["title"]
+    title = season_data["season"]["title"]
     episode_sid = Esid
     rs = RRMJResolver()
     play_url, _ = rs.get_play(seasonId, episode_sid, plugin.get_setting("quality"))

@@ -18,7 +18,8 @@ FAKE_HEADERS = {
     "clientVersion": "99.99",
     "c": "5a1fb134-9384-4fc8-a5ae-6e711e24afc1",
     "d": "",
-    "e": "d4dd075d894dd2b8c81f96062dbe7dcbf7d467fd"
+    "e": "d4dd075d894dd2b8c81f96062dbe7dcbf7d467fd",
+    "token": "5f8f489d12f64488aa310334f32153b4"
 }
 
 
@@ -107,9 +108,9 @@ class RenRenMeiJu(object):
         return self.get_json(SERVER + API)
 
     def video_detail(self, seasonId, userId=0, **kwargs):
-        API = '/v3plus/video/detail'
+        API = '/v3plus/season/detail'
         kwargs["seasonId"] = seasonId
-        kwargs["userId"] = userId
+        kwargs["token"] = "5f8f489d12f64488aa310334f32153b4"
         return self.get_json(SERVER + API, data=urllib.urlencode(kwargs))
 
     def hot_word(self):
